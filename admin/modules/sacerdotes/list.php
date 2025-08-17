@@ -1,0 +1,71 @@
+<?php include_once("../../includes/header.php"); ?>
+
+<h2>Sacerdotes Cadastrados</h2>
+
+<div class="mb-3">
+  <a href="form.php" class="btn btn-success me-2">+ Novo Sacerdote</a>
+</div>
+
+<?php if (isset($_GET['erro'])): ?>
+  <div class="alert alert-danger"><?= htmlspecialchars($_GET['erro']) ?></div>
+<?php endif; ?>
+<?php if (isset($_GET['ok'])): ?>
+  <div class="alert alert-success">Operação realizada com sucesso.</div>
+<?php endif; ?>
+
+<table class="table table-bordered table-striped">
+  <thead class="table-light">
+    <tr>
+      <th>Nome</th>
+      <th>Função</th>
+      <th>Telefone</th>
+      <th>Igrejas Vinculadas (Ativas)</th>
+      <th>Ações</th>
+    </tr>
+  </thead>
+  <tbody>
+    <?php
+    $sql = "SELECT * FROM tbsacerdotes ORDER BY NomeSacerdote";
+    $res = $conn->query($sql);
+    
+    if (!$res) {
+      echo '<div class="alert alert-danger">Erro na consulta SQL: ' . $conn->error . '<br>Query: ' . $sql . '</div>';
+    } elseif ($res->num_rows == 0) {
+      echo '<tr><td colspan="5" class="text-center">Nenhum sacerdote encontrado</td></tr>';
+    } else {
+      while ($sac = $res->fetch_assoc()) {
+      $idSac = $sac['idSacerdote'];
+
+      // Buscar igrejas vinculadas ativas
+      $sqlIgrejas = "SELECT i.NomeIgreja 
+                     FROM tbigrejasacerdote v
+                     JOIN tbigreja i ON v.idIgreja = i.idIgreja
+                     WHERE v.idSacerdote = $idSac AND v.Status = 1
+                     ORDER BY i.NomeIgreja";
+      $resIgrejas = $conn->query($sqlIgrejas);
+
+      $igrejasAtivas = [];
+      if ($resIgrejas && $resIgrejas->num_rows > 0) {
+        while ($ig = $resIgrejas->fetch_assoc()) {
+          $igrejasAtivas[] = $ig['NomeIgreja'];
+        }
+      }
+      $listaIgrejas = $igrejasAtivas ? implode(", ", $igrejasAtivas) : "<i>Sem vínculos ativos</i>";
+
+      echo "<tr>
+              <td>{$sac['NomeSacerdote']}</td>
+              <td>{$sac['Funcao']}</td>
+              <td>{$sac['Telefone']}</td>
+              <td>$listaIgrejas</td>
+              <td>
+                <a href='form.php?id={$sac['idSacerdote']}' class='btn btn-sm btn-primary me-1'>✏️ Editar</a>
+                <a href='excluir.php?id={$sac['idSacerdote']}' class='btn btn-sm btn-danger' onclick=\"return confirm('Deseja realmente excluir este sacerdote?')\">🗑️ Excluir</a>
+              </td>
+            </tr>";
+    }
+  }
+  ?>
+  </tbody>
+</table>
+
+<?php include_once("../../includes/footer.php"); ?>

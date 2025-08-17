@@ -11,18 +11,17 @@
   <a href="../index.php" class="btn btn-sm btn-secondary mb-3">← Voltar à Página Principal</a>
 
   <div class="list-group">
-    <a href="tpliturgico.php" class="list-group-item list-group-item-action">📅 Cadastro de Tempos Litúrgicos</a>
-    <a href="datacomemorativa_geral.php" class="list-group-item list-group-item-action">🎉 Cadastro de Datas Comemorativas</a>
-    <a href="momentosmissa.php" class="list-group-item list-group-item-action">🙏 Cadastro de Momentos da Missa</a>
-    <a href="musicas.php" class="list-group-item list-group-item-action">🎶 Cadastro de Músicas</a>
-    <a href="cifras.php" class="list-group-item list-group-item-action">🎸 Cadastro de Cifras</a>
-    <a href="videos.php" class="list-group-item list-group-item-action">🎥 Cadastro de Vídeos das Músicas</a>
-    <a href="missas.php" class="list-group-item list-group-item-action">⛪ Cadastro de Missas</a>
-    <a href="igreja_list.php" class="list-group-item list-group-item-action">🏛️ Cadastro de Igrejas</a>
-    <a href="sacerdote_list.php" class="list-group-item list-group-item-action">👤 Cadastro de Sacerdotes</a>
-    <a href="vinculaigrejasacerdote_list.php" class="list-group-item list-group-item-action">🔗 Vincular Igrejas e Sacerdotes</a>
-    <a href="relatorios.php" class="btn btn-outline-primary">📊 Ver Relatórios</a>
-
+    <a href="modules/tempos_liturgicos/list.php" class="list-group-item list-group-item-action">📅 Cadastro de Tempos Litúrgicos</a>
+    <a href="modules/datas_comemorativas/list.php" class="list-group-item list-group-item-action">🎉 Cadastro de Datas Comemorativas</a>
+    <a href="modules/momentos_missa/list.php" class="list-group-item list-group-item-action">🙏 Cadastro de Momentos da Missa</a>
+    <a href="modules/musicas/list.php" class="list-group-item list-group-item-action">🎶 Cadastro de Músicas</a>
+    <a href="modules/cifras/list.php" class="list-group-item list-group-item-action">🎸 Cadastro de Cifras</a>
+    <a href="modules/videos/list.php" class="list-group-item list-group-item-action">🎥 Cadastro de Vídeos das Músicas</a>
+    <a href="modules/missas/list.php" class="list-group-item list-group-item-action">⛪ Cadastro de Missas</a>
+    <a href="modules/igrejas/list.php" class="list-group-item list-group-item-action">🏛️ Cadastro de Igrejas</a>
+    <a href="modules/sacerdotes/list.php" class="list-group-item list-group-item-action">👤 Cadastro de Sacerdotes</a>
+    <a href="modules/vinculos/list.php" class="list-group-item list-group-item-action">🔗 Vincular Igrejas e Sacerdotes</a>
+    <a href="modules/relatorios/index.php" class="btn btn-outline-primary">📊 Ver Relatórios</a>
   </div>
 </div>
 </body>
