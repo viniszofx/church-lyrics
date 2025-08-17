@@ -43,10 +43,14 @@ include('../conexao.php');
                 <select name="momento" class="form-select">
                     <option value="">Todos os Momentos</option>
                     <?php
-                    $resMomento = $conn->query("SELECT DISTINCT DescMomento FROM tbMomentosMissa ORDER BY DescMomento");
-                    while ($row = $resMomento->fetch_assoc()) {
-                        $selected = (isset($_GET['momento']) && $_GET['momento'] == $row['DescMomento']) ? 'selected' : '';
-                        echo "<option $selected>" . $row['DescMomento'] . "</option>";
+                    $resMomento = $conn->query("SELECT DISTINCT DescMomento FROM tbmomentosmissa ORDER BY DescMomento");
+                    if (!$resMomento) {
+                        echo "<option value=''>Erro ao carregar momentos: " . $conn->error . "</option>";
+                    } else {
+                        while ($row = $resMomento->fetch_assoc()) {
+                            $selected = (isset($_GET['momento']) && $_GET['momento'] == $row['DescMomento']) ? 'selected' : '';
+                            echo "<option $selected>" . $row['DescMomento'] . "</option>";
+                        }
                     }
                     ?>
                 </select>
@@ -55,10 +59,14 @@ include('../conexao.php');
                 <select name="tempo" class="form-select">
                     <option value="">Todos os Tempos Litúrgicos</option>
                     <?php
-                    $resTempo = $conn->query("SELECT DISTINCT DescTempo FROM tbTpLiturgico ORDER BY DescTempo");
-                    while ($row = $resTempo->fetch_assoc()) {
-                        $selected = (isset($_GET['tempo']) && $_GET['tempo'] == $row['DescTempo']) ? 'selected' : '';
-                        echo "<option $selected>" . $row['DescTempo'] . "</option>";
+                    $resTempo = $conn->query("SELECT DISTINCT DescTempo FROM tbtpliturgico ORDER BY DescTempo");
+                    if (!$resTempo) {
+                        echo "<option value=''>Erro ao carregar tempos litúrgicos: " . $conn->error . "</option>";
+                    } else {
+                        while ($row = $resTempo->fetch_assoc()) {
+                            $selected = (isset($_GET['tempo']) && $_GET['tempo'] == $row['DescTempo']) ? 'selected' : '';
+                            echo "<option $selected>" . $row['DescTempo'] . "</option>";
+                        }
                     }
                     ?>
                 </select>
@@ -76,12 +84,12 @@ include('../conexao.php');
         mu.idMusica, mu.NomeMusica, mu.Musica, mm.DescMomento, mm.OrdemDeExecucao,  
         v.LinkVideo, v.autor, c.TomMusica, c.DescMusicaCifra, 
         tl.DescTempo, tl.Sigla
-    FROM tbMusica mu
+    FROM tbmusica mu
     LEFT OUTER JOIN tbmusicamomentomissa mmm ON mu.IdMusica = mmm.idMusica
     LEFT OUTER JOIN tbmomentosmissa mm ON mmm.idMomento = mm.idMomento
     LEFT OUTER JOIN tbvideo v ON mu.idMusica = v.idVideo
     LEFT OUTER JOIN tbcifras c ON mu.idMusica = c.idCifra
-    LEFT OUTER JOIN tbtempoMusica tm ON mu.idMusica = tm.idMusica
+    LEFT OUTER JOIN tbtempomusica tm ON mu.idMusica = tm.idMusica
     LEFT OUTER JOIN tbtpliturgico tl ON tm.idTpLiturgico = tl.idTpLiturgico
     WHERE 1 = 1
     ";
@@ -109,9 +117,11 @@ include('../conexao.php');
     $sql .= " ORDER BY mm.OrdemDeExecucao, mu.NomeMusica";
 
     $res = $conn->query($sql);
-
-    if ($res->num_rows > 0):
-        while ($row = $res->fetch_assoc()):
+    
+    if (!$res) {
+        echo '<div class="alert alert-danger">Erro na consulta SQL: ' . $conn->error . '<br>Query: ' . $sql . '</div>';
+    } elseif ($res->num_rows > 0) {
+        while ($row = $res->fetch_assoc()) {
     ?>
     <div class="card">
         <div class="card-body">
@@ -129,10 +139,10 @@ include('../conexao.php');
         </div>
     </div>
     <?php
-        endwhile;
-    else:
+        }
+    } else {
         echo "<p class='alert alert-warning'>Nenhuma música encontrada.</p>";
-    endif;
+    }
     ?>
 
 </body>

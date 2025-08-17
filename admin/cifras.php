@@ -13,21 +13,25 @@ $momentos_result = mysqli_query($conn, "SELECT idMomento, DescMomento FROM tbmom
 // Query principal
 $sql = 
     "SELECT  
-        m.idMusica, m.NomeMusica, mm.DescMomento, mm.idMomento, 
-        tl.DescTempo, tl.idTpLiturgico, tl.Sigla,
+        m.idMusica, m.NomeMusica, 
+        ANY_VALUE(mm.DescMomento) as DescMomento, 
+        ANY_VALUE(mm.idMomento) as idMomento, 
+        ANY_VALUE(tl.DescTempo) as DescTempo, 
+        ANY_VALUE(tl.idTpLiturgico) as idTpLiturgico, 
+        ANY_VALUE(tl.Sigla) as Sigla,
         COUNT(c.idCifra) as QtdeCifras
-    FROM tbMusica m
+    FROM tbmusica m
     LEFT JOIN tbmusicamomentomissa mmm ON m.idMusica = mmm.idMusica
     LEFT JOIN tbmomentosmissa mm ON mmm.idMomento = mm.idMomento
     LEFT JOIN tbcifras c ON m.idMusica = c.idMusica
-    LEFT JOIN tbtempoMusica tm ON m.idMusica = tm.idMusica
+    LEFT JOIN tbtempomusica tm ON m.idMusica = tm.idMusica
     LEFT JOIN tbtpliturgico tl ON tm.idTpLiturgico = tl.idTpLiturgico
     WHERE 1 = 1";
     /*
     SUBSTITUIDO PELO SELECT ACIMA
-    "SELECT m.idMusica, m.NomeMusica FROM tbMusica m
-    LEFT JOIN tbTpLiturgico t ON m.idTpLiturgico = t.idTpLiturgico
-    LEFT JOIN tbMusicaMomentoMissa mm ON m.idMusica = mm.idMusica
+    "SELECT m.idMusica, m.NomeMusica FROM tbmusica m
+    LEFT JOIN tbtpliturgico t ON m.idTpLiturgico = t.idTpLiturgico
+    LEFT JOIN tbmusicamomentomissa mm ON m.idMusica = mm.idMusica
     WHERE 1=1";
     */
 
@@ -41,8 +45,14 @@ if ($idMomento) {
     $sql .= " AND mm.idMomento = '" . intval($idMomento) . "'";
 }
 
-$sql .= " GROUP BY m.idMusica ORDER BY mm.OrdemDeExecucao asc, m.NomeMusica ASC";
+$sql .= " GROUP BY m.idMusica ORDER BY ANY_VALUE(COALESCE(mm.OrdemDeExecucao, '9999')), m.NomeMusica ASC";
+
+// Execute query with error handling
 $result = mysqli_query($conn, $sql);
+if (!$result) {
+    echo '<div class="alert alert-danger">Erro na consulta SQL: ' . mysqli_error($conn) . '<br>Query: ' . $sql . '</div>';
+    $result = []; // Initialize as empty array to avoid errors later
+}
 ?>
 
 <!DOCTYPE html>
@@ -111,12 +121,11 @@ $result = mysqli_query($conn, $sql);
         </tr>
     </thead>
     <tbody>
-        
-        <?php while ($musica = mysqli_fetch_assoc($result))   { ?> 
-     <!--      $idMusica = $musica['idMusica'];
-         $qtdCifras = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) as total FROM tbCifras WHERE idMusica = $idMusica"))['total'];
+        <?php 
+        if (is_object($result) && mysqli_num_rows($result) > 0) {
+            while ($musica = mysqli_fetch_assoc($result)) { 
         ?>
-        -->     <tr>
+            <tr>
                 <td><?= htmlspecialchars($musica['NomeMusica']) ?></td>
                 <td class="text-center"><?= $musica['QtdeCifras'] ?></td>
                 <td><?= htmlspecialchars($musica['DescMomento']) ?></td>
@@ -129,8 +138,12 @@ $result = mysqli_query($conn, $sql);
                     <a href="cifras_acao.php?acao=excluir&idMusica=<?= $musica['idMusica'] ?>" class="btn btn-danger btn-sm" onclick="return confirm('Deseja excluir todas as cifras desta música?');">Excluir</a>
                 </td>
             </tr>
-            <?php } ?>
-        
+            <?php 
+            }
+        } else {
+            echo '<tr><td colspan="5" class="text-center">Nenhuma cifra encontrada.</td></tr>';
+        }
+        ?>
     </tbody>
 </table>
 

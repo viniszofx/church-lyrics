@@ -26,21 +26,36 @@ if (!empty($campos_erro)) {
 if ($idMusica) {
     // Atualizar
     $stmt = $conn->prepare("UPDATE tbmusica SET NomeMusica=?, Musica=? WHERE idMusica=?");
+    if (!$stmt) {
+        redirecionar("Erro ao preparar atualização: " . $conn->error);
+    }
     $stmt->bind_param("ssi", $NomeMusica, $Musica, $idMusica);
     $stmt->execute();
 
     // Limpa e reinsere momentos
-    $conn->query("DELETE FROM tbmusicamomentomissa WHERE idMusica = $idMusica");
+    if (!$conn->query("DELETE FROM tbmusicamomentomissa WHERE idMusica = $idMusica")) {
+        redirecionar("Erro ao limpar momentos: " . $conn->error);
+    }
+    
     foreach ($momentosSelecionados as $idMomento) {
         $stmt = $conn->prepare("INSERT INTO tbmusicamomentomissa (idMusica, idMomento) VALUES (?, ?)");
+        if (!$stmt) {
+            redirecionar("Erro ao preparar inserção de momentos: " . $conn->error);
+        }
         $stmt->bind_param("ii", $idMusica, $idMomento);
         $stmt->execute();
     }
 
     // Limpa e reinsere tempos litúrgicos
-    $conn->query("DELETE FROM tbtempomusica WHERE idMusica = $idMusica");
+    if (!$conn->query("DELETE FROM tbtempomusica WHERE idMusica = $idMusica")) {
+        redirecionar("Erro ao limpar tempos litúrgicos: " . $conn->error);
+    }
+    
     foreach ($temposSelecionados as $idTpLiturgico) {
         $stmt = $conn->prepare("INSERT INTO tbtempomusica (idTpLiturgico, idMusica) VALUES (?, ?)");
+        if (!$stmt) {
+            redirecionar("Erro ao preparar inserção de tempos: " . $conn->error);
+        }
         $stmt->bind_param("ii", $idTpLiturgico, $idMusica);
         $stmt->execute();
     }
@@ -49,6 +64,9 @@ if ($idMusica) {
 } else {
     // Inserir
     $stmt = $conn->prepare("INSERT INTO tbmusica (NomeMusica, Musica) VALUES (?, ?)");
+    if (!$stmt) {
+        redirecionar("Erro ao preparar inserção: " . $conn->error);
+    }
     $stmt->bind_param("ss", $NomeMusica, $Musica);
     $stmt->execute();
     $novoIdMusica = $conn->insert_id;
@@ -56,6 +74,9 @@ if ($idMusica) {
     // Insere momentos
     foreach ($momentosSelecionados as $idMomento) {
         $stmt = $conn->prepare("INSERT INTO tbmusicamomentomissa (idMusica, idMomento) VALUES (?, ?)");
+        if (!$stmt) {
+            redirecionar("Erro ao preparar inserção de momentos: " . $conn->error);
+        }
         $stmt->bind_param("ii", $novoIdMusica, $idMomento);
         $stmt->execute();
     }
@@ -63,6 +84,9 @@ if ($idMusica) {
     // Insere tempos litúrgicos
     foreach ($temposSelecionados as $idTpLiturgico) {
         $stmt = $conn->prepare("INSERT INTO tbtempomusica (idTpLiturgico, idMusica) VALUES (?, ?)");
+        if (!$stmt) {
+            redirecionar("Erro ao preparar inserção de tempos: " . $conn->error);
+        }
         $stmt->bind_param("ii", $idTpLiturgico, $novoIdMusica);
         $stmt->execute();
     }

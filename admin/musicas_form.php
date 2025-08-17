@@ -5,16 +5,24 @@ include('../conexao.php');
 $momentos = [];
 $sqlMomentos = "SELECT * FROM tbmomentosmissa ORDER BY DescMomento ASC";
 $resultMomentos = $conn->query($sqlMomentos);
-while ($row = $resultMomentos->fetch_assoc()) {
-    $momentos[] = $row;
+if (!$resultMomentos) {
+    echo '<div class="alert alert-danger">Erro ao buscar momentos: ' . $conn->error . '</div>';
+} else {
+    while ($row = $resultMomentos->fetch_assoc()) {
+        $momentos[] = $row;
+    }
 }
 
 // Buscar tempos litúrgicos
 $tempos = [];
 $sqlTempos = "SELECT * FROM tbtpliturgico ORDER BY DescTempo ASC";
 $resultTempos = $conn->query($sqlTempos);
-while ($row = $resultTempos->fetch_assoc()) {
-    $tempos[] = $row;
+if (!$resultTempos) {
+    echo '<div class="alert alert-danger">Erro ao buscar tempos litúrgicos: ' . $conn->error . '</div>';
+} else {
+    while ($row = $resultTempos->fetch_assoc()) {
+        $tempos[] = $row;
+    }
 }
 ?>
 

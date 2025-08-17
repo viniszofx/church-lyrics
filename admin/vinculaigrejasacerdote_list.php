@@ -29,12 +29,17 @@ include('../conexao.php');
         <tbody>
         <?php
         $sql = "SELECT v.idIgrejaSacerdote, i.NomeIgreja, s.NomeSacerdote, v.DataInicio, v.DataFim, v.Status
-                FROM tbIgrejaSacerdote v
-                JOIN tbIgreja i ON v.idIgreja = i.idIgreja
-                JOIN tbSacerdotes s ON v.idSacerdote = s.idSacerdote";
+                FROM tbigrejasacerdote v
+                JOIN tbigreja i ON v.idIgreja = i.idIgreja
+                JOIN tbsacerdotes s ON v.idSacerdote = s.idSacerdote";
         $result = $conn->query($sql);
 
-        while ($row = $result->fetch_assoc()) {
+        if (!$result) {
+            echo '<div class="alert alert-danger">Erro na consulta SQL: ' . $conn->error . '</div>';
+        } elseif ($result->num_rows == 0) {
+            echo '<tr><td colspan="6" class="text-center">Nenhum vínculo encontrado</td></tr>';
+        } else {
+            while ($row = $result->fetch_assoc()) {
             echo "<tr>
                     <td>{$row['NomeIgreja']}</td>
                     <td>{$row['NomeSacerdote']}</td>
@@ -46,6 +51,7 @@ include('../conexao.php');
                         <a href='#' onclick=\"if(confirm('Deseja realmente excluir este vínculo?')) { window.location.href='vinculaigrejasacerdote_form.php?excluir={$row['idIgrejaSacerdote']}'; }\" class='btn btn-danger btn-sm'>Excluir</a>
                     </td>
                   </tr>";
+            }
         }
         ?>
         </tbody>

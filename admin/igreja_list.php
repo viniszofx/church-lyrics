@@ -28,22 +28,32 @@
     </thead>
     <tbody>
       <?php
-      $sql = "SELECT * FROM tbIgreja ORDER BY NomeIgreja";
+      $sql = "SELECT * FROM tbigreja ORDER BY NomeIgreja";
       $res = $conn->query($sql);
-
-      while ($igreja = $res->fetch_assoc()) {
-        // Buscar sacerdotes vinculados ativos a essa igreja
-        $idIgreja = $igreja['idIgreja'];
-        $sqlSacerdotes = "SELECT s.NomeSacerdote 
-                          FROM tbIgrejaSacerdote v
-                          JOIN tbSacerdotes s ON v.idSacerdote = s.idSacerdote
-                          WHERE v.idIgreja = $idIgreja AND v.Status = 1
-                          ORDER BY s.NomeSacerdote";
+      
+      // Check if query was successful
+      if (!$res) {
+        echo '<div class="alert alert-danger">Erro na consulta SQL: ' . $conn->error . '<br>Query: ' . $sql . '</div>';
+      } elseif ($res->num_rows == 0) {
+        echo '<tr><td colspan="6" class="text-center">Nenhuma igreja encontrada</td></tr>';
+      } else {
+        while ($igreja = $res->fetch_assoc()) {
+          // Buscar sacerdotes vinculados ativos a essa igreja
+          $idIgreja = $igreja['idIgreja'];
+          $sqlSacerdotes = "SELECT s.NomeSacerdote 
+                            FROM tbigrejasacerdote v
+                            JOIN tbsacerdotes s ON v.idSacerdote = s.idSacerdote
+                            WHERE v.idIgreja = $idIgreja AND v.Status = 1
+                            ORDER BY s.NomeSacerdote";
         $resSacerdotes = $conn->query($sqlSacerdotes);
-
+        
         $sacerdotesAtivos = [];
-        while ($sac = $resSacerdotes->fetch_assoc()) {
-          $sacerdotesAtivos[] = $sac['NomeSacerdote'];
+        if ($resSacerdotes) {
+          while ($sac = $resSacerdotes->fetch_assoc()) {
+            $sacerdotesAtivos[] = $sac['NomeSacerdote'];
+          }
+        } else {
+          echo '<div class="alert alert-danger">Erro ao buscar sacerdotes: ' . $conn->error . '</div>';
         }
         $listaSacerdotes = $sacerdotesAtivos ? implode(", ", $sacerdotesAtivos) : "<i>Sem vínculos ativos</i>";
 
@@ -59,6 +69,7 @@
                   
                 </td>
               </tr>";
+        }
       }
       ?>
     </tbody>

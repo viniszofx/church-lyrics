@@ -9,7 +9,7 @@ if (!isset($_GET['id'])) {
 $id = (int) $_GET['id'];
 
 // Buscar o registro
-$res = $conn->query("SELECT * FROM tbDataComemorativa WHERE idDataComemorativa = $id");
+$res = $conn->query("SELECT * FROM tbdatacomemorativa WHERE idDataComemorativa = $id");
 if ($res->num_rows === 0) {
     echo "<div class='alert alert-warning'>Registro não encontrado.</div>";
     exit;
@@ -20,7 +20,7 @@ $row = $res->fetch_assoc();
 if (isset($_POST['salvar'])) {
     $nome = $_POST['NomeDataComemorativa'];
     $data = $_POST['DataComemorativa'];
-    $conn->query("UPDATE tbDataComemorativa SET NomeDataComemorativa='$nome', DataComemorativa='$data' WHERE idDataComemorativa = $id");
+    $conn->query("UPDATE tbdatacomemorativa SET NomeDataComemorativa='$nome', DataComemorativa='$data' WHERE idDataComemorativa = $id");
     header("Location: datacomemorativa_geral.php");
     exit;
 }

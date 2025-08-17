@@ -11,6 +11,10 @@ $idMusica = intval($_GET['id']);
 // Buscar dados da música
 $sql = "SELECT * FROM tbmusica WHERE idMusica = ?";
 $stmt = $conn->prepare($sql);
+if (!$stmt) {
+    echo '<div class="alert alert-danger">Erro ao preparar consulta da música: ' . $conn->error . '</div>';
+    exit;
+}
 $stmt->bind_param("i", $idMusica);
 $stmt->execute();
 $result = $stmt->get_result();
@@ -34,11 +38,15 @@ while ($m = $resultMomentos->fetch_assoc()) {
 $momentosMarcados = [];
 $sqlVinculos = "SELECT idMomento FROM tbmusicamomentomissa WHERE idMusica = ?";
 $stmtVinculo = $conn->prepare($sqlVinculos);
-$stmtVinculo->bind_param("i", $idMusica);
-$stmtVinculo->execute();
-$resVinculo = $stmtVinculo->get_result();
-while ($v = $resVinculo->fetch_assoc()) {
-    $momentosMarcados[] = $v['idMomento'];
+if (!$stmtVinculo) {
+    echo '<div class="alert alert-danger">Erro ao preparar consulta de vínculos: ' . $conn->error . '</div>';
+} else {
+    $stmtVinculo->bind_param("i", $idMusica);
+    $stmtVinculo->execute();
+    $resVinculo = $stmtVinculo->get_result();
+    while ($v = $resVinculo->fetch_assoc()) {
+        $momentosMarcados[] = $v['idMomento'];
+    }
 }
 
 // Buscar todos os tempos litúrgicos
@@ -51,13 +59,17 @@ while ($t = $resultTempos->fetch_assoc()) {
 
 // Buscar tempos litúrgicos já vinculados à música
 $temposMarcados = [];
-$sqlTempoVinculo = "SELECT idTpLiturgico FROM tbTempoMusica WHERE idMusica = ?";
+$sqlTempoVinculo = "SELECT idTpLiturgico FROM tbtempomusica WHERE idMusica = ?";
 $stmtTempo = $conn->prepare($sqlTempoVinculo);
-$stmtTempo->bind_param("i", $idMusica);
-$stmtTempo->execute();
-$resTempo = $stmtTempo->get_result();
-while ($tv = $resTempo->fetch_assoc()) {
-    $temposMarcados[] = $tv['idTpLiturgico'];
+if (!$stmtTempo) {
+    echo '<div class="alert alert-danger">Erro ao preparar consulta de tempos: ' . $conn->error . '</div>';
+} else {
+    $stmtTempo->bind_param("i", $idMusica);
+    $stmtTempo->execute();
+    $resTempo = $stmtTempo->get_result();
+    while ($tv = $resTempo->fetch_assoc()) {
+        $temposMarcados[] = $tv['idTpLiturgico'];
+    }
 }
 ?>
 

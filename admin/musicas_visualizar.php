@@ -10,6 +10,10 @@ if ($idMusica <= 0) {
 
 $sql = "SELECT * FROM tbmusica WHERE idMusica = ?";
 $stmt = $conn->prepare($sql);
+if (!$stmt) {
+    echo "<script>alert('Erro ao preparar consulta: " . $conn->error . "'); window.location.href='musicas.php';</script>";
+    exit;
+}
 $stmt->bind_param("i", $idMusica);
 $stmt->execute();
 $result = $stmt->get_result();
@@ -45,9 +49,14 @@ $musica = $result->fetch_assoc();
                     WHERE mm.idMusica = $idMusica
                     ORDER BY mo.OrdemDeExecucao
                 ");
+                
                 $listaMomentos = [];
-                while ($m = $momentos->fetch_assoc()) $listaMomentos[] = $m['DescMomento'];
-                echo implode(" | ", $listaMomentos);
+                if ($momentos) {
+                    while ($m = $momentos->fetch_assoc()) $listaMomentos[] = $m['DescMomento'];
+                    echo implode(" | ", $listaMomentos);
+                } else {
+                    echo "Erro ao buscar momentos: " . $conn->error;
+                }
                 ?>
             </p>
 
@@ -60,9 +69,14 @@ $musica = $result->fetch_assoc();
                     WHERE tm.idMusica = $idMusica
                     ORDER BY tp.Sigla
                 ");
+                
                 $listaTempos = [];
-                while ($t = $tempos->fetch_assoc()) $listaTempos[] = $t['Sigla'];
-                echo implode(" | ", $listaTempos);
+                if ($tempos) {
+                    while ($t = $tempos->fetch_assoc()) $listaTempos[] = $t['Sigla'];
+                    echo implode(" | ", $listaTempos);
+                } else {
+                    echo "Erro ao buscar tempos litúrgicos: " . $conn->error;
+                }
                 ?>
             </p>
 

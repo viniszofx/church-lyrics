@@ -6,19 +6,24 @@ if (isset($_POST['inserir'])) {
     $nome = $_POST['DescComemoracao'];
     $quando = $_POST['QuandoAcontece'];
     $mesdia = $_POST['MesDia'];
-    $conn->query("INSERT INTO tbDataComemorativa (DescComemoracao, QuandoAcontece, MesDia) VALUES ('$nome', '$quando', '$mesdia')");
+    $conn->query("INSERT INTO tbdatacomemorativa (DescComemoracao, QuandoAcontece, MesDia) VALUES ('$nome', '$quando', '$mesdia')");
     echo "<div class='alert alert-success'>Data comemorativa adicionada!</div>";
 }
 
 // Exclusão
 if (isset($_GET['excluir'])) {
     $id = (int) $_GET['excluir'];
-    $conn->query("DELETE FROM tbDataComemorativa WHERE idDataComemorativa = $id");
+    $conn->query("DELETE FROM tbdatacomemorativa WHERE idDataComemorativa = $id");
     echo "<div class='alert alert-warning'>Data comemorativa removida.</div>";
 }
 
 // Consulta
-$datas = $conn->query("SELECT * FROM tbDataComemorativa ORDER BY QuandoAcontece DESC");
+$query = "SELECT * FROM tbdatacomemorativa ORDER BY QuandoAcontece DESC";
+$datas = $conn->query($query);
+
+if ($datas === false) {
+    echo "<div class='alert alert-danger'>Erro na consulta: " . $conn->error . "<br>Query: " . $query . "</div>";
+}
 ?>
 
 <!DOCTYPE html>
@@ -59,7 +64,9 @@ $datas = $conn->query("SELECT * FROM tbDataComemorativa ORDER BY QuandoAcontece 
             </tr>
         </thead>
         <tbody>
-        <?php while ($d = $datas->fetch_assoc()): ?>
+        <?php 
+        if ($datas && $datas->num_rows > 0) {
+            while ($d = $datas->fetch_assoc()): ?>
             <tr>
                 <td><?= $d['idDataComemorativa'] ?></td>
                 <td><?= htmlspecialchars($d['DescComemoracao']) ?></td>
@@ -70,7 +77,11 @@ $datas = $conn->query("SELECT * FROM tbDataComemorativa ORDER BY QuandoAcontece 
                     <a href="datacomemorativa_editar.php?id=<?= $d['idDataComemorativa'] ?>" class="btn btn-sm btn-warning">Editar</a>
                  </td>
             </tr>
-        <?php endwhile; ?>
+        <?php endwhile; 
+        } else {
+            echo "<tr><td colspan='5' class='text-center'>Nenhuma data comemorativa encontrada</td></tr>";
+        }
+        ?>
         </tbody>
     </table>
 </div>

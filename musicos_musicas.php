@@ -2,16 +2,16 @@
 include "conexao.php";
 
 // Obter a última data da missa
-$sql_data = "SELECT MAX(DataMissa) AS UltimaData FROM tbMissa where Status = '1'";
+$sql_data = "SELECT MAX(DataMissa) AS UltimaData FROM tbmissa where Status = '1'";
 $res_data = $conn->query($sql_data);
 $ultimaData = $res_data->fetch_assoc()['UltimaData'] ?? null;
 
 // Buscar todos os momentos da missa ordenados
 $sql_momentos = "
-                  SELECT mom.idMomento, mom.DescMomento FROM tbMissa m
-                    JOIN tbMissaMusicas mm ON mm.idMissa = m.idMissa
-                    JOIN tbMusicaMomentoMissa mmm ON mmm.idMusica = mm.idMusica and mmm.idMomento = mm.idMusicaMomentoMissa
-                    JOIN tbMomentosMissa mom ON mom.idMomento = mmm.idMomento
+                  SELECT mom.idMomento, mom.DescMomento FROM tbmissa m
+                    JOIN tbmissamusicas mm ON mm.idMissa = m.idMissa
+                    JOIN tbmusicamomentomissa mmm ON mmm.idMusica = mm.idMusica and mmm.idMomento = mm.idMusicaMomentoMissa
+                    JOIN tbmomentosmissa mom ON mom.idMomento = mmm.idMomento
                     WHERE m.DataMissa = '$ultimaData' and m.Status = '1'
                     ORDER BY mom.OrdemDeExecucao
                 ";
@@ -20,12 +20,12 @@ $momentos = $conn->query($sql_momentos)->fetch_all(MYSQLI_ASSOC);
 // Buscar todas as músicas da última missa agrupadas por momento
 $sql_musicas = "
                   SELECT m.TituloMissa, m.DataMissa, mom.DescMomento, mom.idMomento, mu.Musica, mu.NomeMusica, ci.DescMusicaCifra, ci.TomMusica
-                  FROM tbMissa m
-                  JOIN tbMissaMusicas mm ON mm.idMissa = m.idMissa
-                  JOIN tbMusica mu ON mu.idMusica = mm.idMusica
-                  JOIN tbMusicaMomentoMissa mmm ON mmm.idMusica = mu.idMusica and mmm.idMomento = mm.idMusicaMomentoMissa
-                  JOIN tbMomentosMissa mom ON mom.idMomento = mmm.idMomento
-                  JOIN tbCifras ci ON ci.idMusica = mm.idMusica
+                  FROM tbmissa m
+                  JOIN tbmissamusicas mm ON mm.idMissa = m.idMissa
+                  JOIN tbmusica mu ON mu.idMusica = mm.idMusica
+                  JOIN tbmusicamomentomissa mmm ON mmm.idMusica = mu.idMusica and mmm.idMomento = mm.idMusicaMomentoMissa
+                  JOIN tbmomentosmissa mom ON mom.idMomento = mmm.idMomento
+                  JOIN tbcifras ci ON ci.idMusica = mm.idMusica
                   WHERE m.DataMissa = '$ultimaData'  and m.Status = '1'
                   ORDER BY mom.OrdemDeExecucao
                ";

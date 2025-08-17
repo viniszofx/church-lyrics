@@ -34,23 +34,30 @@
     </thead>
     <tbody>
       <?php
-      $sql = "SELECT * FROM tbSacerdotes ORDER BY NomeSacerdote";
+      $sql = "SELECT * FROM tbsacerdotes ORDER BY NomeSacerdote";
       $res = $conn->query($sql);
-
-      while ($sac = $res->fetch_assoc()) {
+      
+      if (!$res) {
+        echo '<div class="alert alert-danger">Erro na consulta SQL: ' . $conn->error . '<br>Query: ' . $sql . '</div>';
+      } elseif ($res->num_rows == 0) {
+        echo '<tr><td colspan="5" class="text-center">Nenhum sacerdote encontrado</td></tr>';
+      } else {
+        while ($sac = $res->fetch_assoc()) {
         $idSac = $sac['idSacerdote'];
 
         // Buscar igrejas vinculadas ativas
         $sqlIgrejas = "SELECT i.NomeIgreja 
-                       FROM tbIgrejaSacerdote v
-                       JOIN tbIgreja i ON v.idIgreja = i.idIgreja
+                       FROM tbigrejasacerdote v
+                       JOIN tbigreja i ON v.idIgreja = i.idIgreja
                        WHERE v.idSacerdote = $idSac AND v.Status = 1
                        ORDER BY i.NomeIgreja";
         $resIgrejas = $conn->query($sqlIgrejas);
 
         $igrejasAtivas = [];
-        while ($ig = $resIgrejas->fetch_assoc()) {
-          $igrejasAtivas[] = $ig['NomeIgreja'];
+        if ($resIgrejas && $resIgrejas->num_rows > 0) {
+          while ($ig = $resIgrejas->fetch_assoc()) {
+            $igrejasAtivas[] = $ig['NomeIgreja'];
+          }
         }
         $listaIgrejas = $igrejasAtivas ? implode(", ", $igrejasAtivas) : "<i>Sem vínculos ativos</i>";
 
@@ -65,7 +72,8 @@
                 </td>
               </tr>";
       }
-      ?>
+    }
+    ?>
     </tbody>
   </table>
 
